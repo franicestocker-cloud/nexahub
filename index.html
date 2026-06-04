@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NexaHub - Plataforma Empresa</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">MF</div>
+        <div>
+          <h1>NexaHub</h1>
+          <p>Empresa</p>
+        </div>
+      </div>
+
+      <div class="profile-box">
+        <label>Entrar como:</label>
+        <select id="roleSelect">
+          <option value="ceo">CEO / Diretor</option>
+          <option value="atendimento">Atendimento</option>
+          <option value="conteudo">Rede de Conteúdo</option>
+          <option value="redator">Redator</option>
+          <option value="design">Designer</option>
+          <option value="editor">Editor</option>
+          <option value="cliente">Cliente</option>
+        </select>
+      </div>
+
+      <nav id="menu"></nav>
+
+      <button class="ghost" id="resetBtn">Restaurar dados exemplo</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Visão geral da operação</p>
+        </div>
+        <div class="notifications">
+          <button id="notifyBtn">🔔 <span id="notifyCount">0</span></button>
+          <div id="notifyPanel" class="notify-panel hidden"></div>
+        </div>
+      </header>
+
+      <section id="content"></section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
