@@ -1,3 +1,50 @@
+const SUPABASE_URL = "https://ahfuhqpnnzsupmvsqfjq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_s2n_2nEk-iLde8dwp4si1w_5SDtuh-8";
+const STATE_TABLE = "nexahub_state";
+
+async function supabaseRequest(path, options = {}) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+      ...(options.headers || {})
+    }
+  });
+
+  if (!response.ok) {
+    console.error("Erro Supabase:", await response.text());
+    throw new Error("Erro ao conectar com Supabase");
+  }
+
+  return response;
+}
+
+async function carregarBanco() {
+  const response = await supabaseRequest(`${STATE_TABLE}?id=eq.main&select=data`);
+  const rows = await response.json();
+
+  if (rows.length) return rows[0].data;
+
+  await supabaseRequest(STATE_TABLE, {
+    method: "POST",
+    body: JSON.stringify({ id: "main", data: seed })
+  });
+
+  return seed;
+}
+
+async function salvarBanco() {
+  await supabaseRequest(`${STATE_TABLE}?id=eq.main`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      data: db,
+      updated_at: new Date().toISOString()
+    })
+  });
+}
 const seed = {
   currentClient: "Dra. Ana",
   clients: [
@@ -41,7 +88,7 @@ const seed = {
   ]
 };
 
-let db = JSON.parse(localStorage.getItem("medflow-db") || "null") || seed;
+let db = JSON.parse(JSON.stringify(seed));
 let role = localStorage.getItem("medflow-role") || "ceo";
 let page = "dashboard";
 let selectedDoc = db.docs[0]?.id || null;
@@ -71,7 +118,7 @@ document.getElementById("notifyBtn").onclick = () => {
   document.getElementById("notifyPanel").classList.toggle("hidden");
 };
 
-function save(){ localStorage.setItem("medflow-db", JSON.stringify(db)); }
+function save(){ salvarBanco(); }
 function currentClient(){ return db.currentClient || db.clients[0].name; }
 function setClient(name){ db.currentClient = name; save(); render(); }
 
@@ -454,9 +501,31 @@ function val(id){ return document.getElementById(id).value; }
 function escapeHtml(str){ return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;"); }
 
 function render(){
-  renderMenu(); renderNotifications();
-  if(role==="cliente" && !["portal","agenda","aprovacoes"].includes(page)) page="portal";
-  const map={dashboard,clientes,agenda,docs,artes,videos,notificacoes,portal,aprovacoes};
+  renderMenu();
+  renderNotifications();
+
+  if(role==="cliente" && !["portal","agenda","aprovacoes"].includes(page))
+    page="portal";
+
+  const map={
+    dashboard,
+    clientes,
+    agenda,
+    docs,
+    artes,
+    videos,
+    notificacoes,
+    portal,
+    aprovacoes
+  };
+
   (map[page]||dashboard)();
 }
-render();
+
+async function init(){
+  db = await carregarBanco();
+  selectedDoc = db.docs[0]?.id || null;
+  render();
+}
+
+init();
