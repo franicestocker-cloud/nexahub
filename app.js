@@ -9,7 +9,7 @@ async function supabaseRequest(path, options = {}) {
       apikey: SUPABASE_ANON_KEY,
       Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       "Content-Type": "application/json",
-      Prefer:"return=representation",,
+      Prefer:"return=representation",
       ...(options.headers || {})
     }
   });
