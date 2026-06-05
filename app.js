@@ -223,12 +223,51 @@ function table(rows, keys, labels){
 function clientes(){
   pageTitle.textContent = "Clientes";
   pageSubtitle.textContent = "Cada setor enxerga apenas os clientes atribuídos";
+  const clientes = visibleClients();
+
   content.innerHTML = `
     <div class="card">
-      <div class="actions"><button class="btn" onclick="openClientModal()">+ Novo cliente</button></div><br/>
-      ${table(visibleClients(), ["name","specialty","atendimento","redator","designer","editor"], ["Cliente","Especialidade","Atendimento","Redator","Designer","Editor"])}
+      <div class="actions">
+        <button class="btn" onclick="openClientModal()">+ Novo cliente</button>
+      </div><br/>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Especialidade</th>
+            <th>Atendimento</th>
+            <th>Redator</th>
+            <th>Designer</th>
+            <th>Editor</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${clientes.map(c=>`
+            <tr>
+              <td>${c.name || ""}</td>
+              <td>${c.specialty || ""}</td>
+              <td>${c.atendimento || ""}</td>
+              <td>${c.redator || ""}</td>
+              <td>${c.designer || ""}</td>
+              <td>${c.editor || ""}</td>
+              <td>
+                <button class="btn danger" onclick="deleteClient(${c.id})">Excluir</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
     </div>
   `;
+}
+
+function deleteClient(id){
+  if(!confirm("Deseja realmente excluir este cliente?")) return;
+  db.clients = db.clients.filter(c => c.id !== id);
+  save();
+  render();
 }
 
 function agenda(){
