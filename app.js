@@ -232,37 +232,112 @@ function clientes(){
 }
 
 function agenda(){
-  pageTitle.textContent = role === "cliente" ? "Agendar gravação ou reunião" : "Agenda";
-  pageSubtitle.textContent = role === "cliente" ? "Escolha apenas datas liberadas pela agência" : "Visualização interna estilo Google Agenda";
-  const names = visibleClientNames();
-  if(role === "cliente"){
-    content.innerHTML = `<div class="card"><h3>Datas disponíveis</h3>
-      <p class="small">A cliente só visualiza horários liberados. Ao marcar, todos os setores responsáveis são notificados.</p>
-      ${db.slots.filter(s=>s.status==="Livre").map(s=>`
-        <div class="card" style="margin-bottom:10px">
-          <b>${s.date} às ${s.time}</b><br/>
-          <span class="small">${s.type} - ${s.place}</span><br/><br/>
-          <button class="btn" onclick="bookSlot(${s.id})">Marcar horário</button>
-        </div>
-      `).join("")}
-    </div>`;
-    return;
-  }
-  const bookings = db.bookings.filter(b=>names.includes(b.client));
-  const days = [];
-  for(let i=1;i<=30;i++) days.push(String(i).padStart(2,"0"));
-  content.innerHTML = `<div class="card">
-    <div class="actions"><button class="btn" onclick="openBookingModal()">+ Novo agendamento interno</button></div><br/>
-    <div class="calendar">
-      ${days.map(d=>{
-        const date = `2026-06-${d}`;
-        const evs = bookings.filter(b=>b.date===date);
-        return `<div class="day"><b>${d}/06</b>${evs.map(e=>`<div class="event ${e.type==='Reunião'?'meet':''}">${e.time} ${e.client}<br>${e.type}</div>`).join("")}</div>`
-      }).join("")}
+  pageTitle.textContent = "Agenda Compartilhada";
+  pageSubtitle.textContent = "Todos os setores visualizam os agendamentos, gravações, reuniões e remarcações";
+
+  const bookings = db.bookings || [];
+
+  content.innerHTML = `
+    <div class="card">
+      <div class="actions">
+        <button class="btn" onclick="openBookingModal()">+ Novo agendamento</button>
+      </div>
+      <br/>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Tipo</th>
+            <th>Local</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${bookings.map(b=>`
+            <tr>
+              <td>${b.client || ""}</td>
+              <td>${b.date || ""}</td>
+              <td>${b.time || ""}</td>
+              <td>${agendaTipoBadge(b.type)}</td>
+              <td>${b.place || ""}</td>
+              <td>${b.status ? statusBadge(b.status) : statusBadge("Confirmado")}</td>
+              <td>
+                <button class="btn light" onclick="editBooking(${b.id})">Editar</button>
+                <button class="btn danger" onclick="deleteBooking(${b.id})">Excluir</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
     </div>
-  </div>`;
+  `;
 }
 
+function agendaTipoBadge(tipo){
+  if(tipo === "Gravação") return `<span class="badge">Gravação</span>`;
+  if(tipo === "Reunião") return `<span class="badge green">Reunião</span>`;
+  if(tipo === "Aprovação") return `<span class="badge yellow">Aprovação</span>`;
+  if(tipo === "Cancelado") return `<span class="badge red">Cancelado</span>`;
+  return `<span class="badge">${tipo || "Agendamento"}</span>`;
+}
+
+function editBooking(id){
+  const b = db.bookings.find(x=>x.id===id);
+  if(!b) return alert("Agendamento não encontrado.");
+
+  modal(`<h3>Editar agendamento</h3>
+    <div class="form-grid">
+      <div><label>Cliente</label><input id="edit_client" value="${escapeHtml(b.client || "")}"/></div>
+      <div><label>Tipo</label>
+        <select id="edit_type">
+          <option ${b.type==="Gravação"?"selected":""}>Gravação</option>
+          <option ${b.type==="Reunião"?"selected":""}>Reunião</option>
+          <option ${b.type==="Aprovação"?"selected":""}>Aprovação</option>
+          <option ${b.type==="Cancelado"?"selected":""}>Cancelado</option>
+        </select>
+      </div>
+      <div><label>Data</label><input id="edit_date" type="date" value="${b.date || ""}"/></div>
+      <div><label>Hora</label><input id="edit_time" type="time" value="${b.time || ""}"/></div>
+      <div><label>Status</label>
+        <select id="edit_status">
+          <option ${b.status==="Confirmado"?"selected":""}>Confirmado</option>
+          <option ${b.status==="Remarcado"?"selected":""}>Remarcado</option>
+          <option ${b.status==="Cancelado"?"selected":""}>Cancelado</option>
+        </select>
+      </div>
+      <div><label>Local</label><input id="edit_place" value="${escapeHtml(b.place || "")}"/></div>
+    </div><br/>
+    <button class="btn" onclick="saveEditBooking(${id})">Salvar alterações</button>`);
+}
+
+function saveEditBooking(id){
+  const b = db.bookings.find(x=>x.id===id);
+  if(!b) return;
+
+  b.client = val("edit_client");
+  b.type = val("edit_type");
+  b.date = val("edit_date");
+  b.time = val("edit_time");
+  b.status = val("edit_status");
+  b.place = val("edit_place");
+
+  closeModal();
+  save();
+  render();
+}
+
+function deleteBooking(id){
+  if(!confirm("Deseja realmente excluir este agendamento?")) return;
+
+  db.bookings = db.bookings.filter(b => b.id !== id);
+
+  save();
+  render();
+}
 function bookSlot(id){
   const slot = db.slots.find(s=>s.id===id);
   const client = currentClient();
