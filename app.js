@@ -22,18 +22,33 @@ async function supabaseRequest(path, options = {}) {
   return response;
 }
 
-async function carregarBanco() {
-  const response = await supabaseRequest(`${STATE_TABLE}?id=eq.main&select=data`);
-  const rows = await response.json();
+function normalizarBanco(data){
+  return {
+    ...seed,
+    ...(data || {}),
+    clients: data?.clients || seed.clients,
+    slots: data?.slots || seed.slots,
+    bookings: data?.bookings || seed.bookings,
+    docs: data?.docs || seed.docs,
+    arts: data?.arts || seed.arts,
+    videos: data?.videos || seed.videos,
+    notifications: data?.notifications || seed.notifications,
+    currentClient: data?.currentClient || seed.currentClient
+  };
+}
+async function salvarBanco() {
+  try {
+    await
+    await supabaseRequest(STATE_TABLE, {
+      method: "POST",
+      body: JSON.stringify({ id: "main", data: seed })
+    });
 
-  if (rows.length) return rows[0].data;
-
-  await supabaseRequest(STATE_TABLE, {
-    method: "POST",
-    body: JSON.stringify({ id: "main", data: seed })
-  });
-
-  return seed;
+    return normalizarBanco(seed);
+  } catch (error) {
+    console.error("Erro ao carregar banco:", error);
+    return normalizarBanco(seed);
+  }
 }
 
 async function salvarBanco() {
