@@ -26,22 +26,29 @@ function normalizarBanco(data){
   return {
     ...seed,
     ...(data || {}),
-    clients: data?.clients || seed.clients,
-    slots: data?.slots || seed.slots,
-    bookings: data?.bookings || seed.bookings,
-    docs: data?.docs || seed.docs,
-    arts: data?.arts || seed.arts,
-    videos: data?.videos || seed.videos,
-    notifications: data?.notifications || seed.notifications,
+    clients: data?.clients?.length ? data.clients : seed.clients,
+    slots: data?.slots?.length ? data.slots : seed.slots,
+    bookings: data?.bookings || [],
+    docs: data?.docs || [],
+    arts: data?.arts || [],
+    videos: data?.videos || [],
+    notifications: data?.notifications || [],
     currentClient: data?.currentClient || seed.currentClient
   };
 }
-async function salvarBanco() {
+
+async function carregarBanco() {
   try {
-    await
+    const response = await supabaseRequest(`${STATE_TABLE}?id=eq.main&select=data`);
+    const rows = await response.json();
+
+    if (rows.length && rows[0].data) {
+      return normalizarBanco(rows[0].data);
+    }
+
     await supabaseRequest(STATE_TABLE, {
       method: "POST",
-      body: JSON.stringify({ id: "main", data: seed })
+      body: JSON.stringify({ id: "main", data: normalizarBanco(seed) })
     });
 
     return normalizarBanco(seed);
@@ -52,13 +59,22 @@ async function salvarBanco() {
 }
 
 async function salvarBanco() {
-  await supabaseRequest(`${STATE_TABLE}?id=eq.main`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      data: db,
-      updated_at: new Date().toISOString()
-    })
-  });
+  try {
+    await supabaseRequest(STATE_TABLE, {
+      method: "POST",
+      headers: {
+        Prefer: "resolution=merge-duplicates,return=representation"
+      },
+      body: JSON.stringify({
+        id: "main",
+        data: normalizarBanco(db),
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch (error) {
+    console.error("Erro ao salvar banco:", error);
+    alert("Não foi possível salvar no banco. Verifique o Supabase.");
+  }
 }
 const seed = {
   currentClient: "Dra. Ana",
