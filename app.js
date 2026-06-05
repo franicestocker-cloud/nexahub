@@ -517,31 +517,81 @@ function downloadMock(title){ alert(`Simulação: baixar arquivo da arte "${titl
 
 function videos(){
   pageTitle.textContent = "Vídeos / Brutos";
-  pageSubtitle.textContent = "Área estilo Drive para brutos, edições e vídeos finalizados";
+  pageSubtitle.textContent = "Materiais separados por editor, videomaker e responsável";
+
   const vids = db.videos.filter(allowed).filter(v => role==="cliente" ? v.client===currentClient() : true);
+
+  const responsaveis = ["Todos", ...new Set(vids.map(v => v.responsavel || v.editor || "Sem responsável"))];
+  const filtro = window.videoFiltro || "Todos";
+  const filtrados = filtro === "Todos" ? vids : vids.filter(v => (v.responsavel || v.editor || "Sem responsável") === filtro);
+
   content.innerHTML = `
     ${role!=="cliente" ? renderClientTabs() : ""}
-    <div class="actions"><button class="btn" onclick="newVideo()">+ Adicionar vídeo/bruto</button></div><br/>
+
+    <div class="client-tabs">
+      ${responsaveis.map(r=>`<button class="${filtro===r?'active':''}" onclick="window.videoFiltro='${r}';render()">${r}</button>`).join("")}
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="newVideo()">+ Adicionar vídeo/bruto</button>
+    </div><br/>
+
     <div class="video-grid">
-      ${vids.map(v=>`
+      ${filtrados.map(v=>`
         <div class="video-card">
           <div class="video-preview">▶ ${v.status}</div>
           <b>${v.title}</b><br/>
-          <span class="small">${v.client} • Editor: ${v.editor}</span><br/><br/>
+          <span class="small">${v.client} • ${v.setor || "Editor"}: ${v.responsavel || v.editor || "Sem responsável"}</span><br/><br/>
           ${statusBadge(v.status)}<br/><br/>
           <div class="actions">
-            <button class="btn light" onclick="downloadMock('${v.title}')">Baixar</button>
+            ${v.link ? `<button class="btn light" onclick="window.open('${v.link}','_blank')">Abrir material</button>` : ""}
             <button class="btn light" onclick="commentVideo(${v.id})">Comentar</button>
             <button class="btn" onclick="approveVideo(${v.id})">Aprovar</button>
           </div>
-        </div>`).join("")}
+        </div>`).join("") || "<p class='small'>Nenhum material encontrado.</p>"}
     </div>
   `;
 }
 function newVideo(){
-  db.videos.push({id:Date.now(),client:currentClient(),title:"Novo vídeo/bruto",status:"Brutos",editor:""});
-  db.notifications.push({id:Date.now()+1,to:"editor",text:`Novos brutos adicionados para ${currentClient()}.`,read:false});
-  save(); render();
+  modal(`<h3>Adicionar vídeo/bruto</h3>
+    <div class="form-grid">
+      <div><label>Cliente</label><select id="v_client">${visibleClients().map(c=>`<option>${c.name}</option>`).join("")}</select></div>
+      <div><label>Título</label><input id="v_title" placeholder="Ex: Brutos Junho - Clínica"/></div>
+      <div><label>Setor</label>
+        <select id="v_setor">
+          <option>Editor</option>
+          <option>Videomaker</option>
+        </select>
+      </div>
+      <div><label>Responsável</label><input id="v_responsavel" placeholder="Nome do editor ou videomaker"/></div>
+      <div><label>Status</label>
+        <select id="v_status">
+          <option>Brutos</option>
+          <option>Em edição</option>
+          <option>Revisão</option>
+          <option>Finalizado</option>
+        </select>
+      </div>
+      <div class="full"><label>Link do material</label><input id="v_link" placeholder="Cole o link do Drive, Dropbox, WeTransfer ou vídeo"/></div>
+    </div><br/>
+    <button class="btn" onclick="saveVideoModal()">Salvar vídeo/bruto</button>`);
+}
+
+function saveVideoModal(){
+  db.videos.push({
+    id: Date.now(),
+    client: val("v_client"),
+    title: val("v_title") || "Novo vídeo/bruto",
+    setor: val("v_setor"),
+    responsavel: val("v_responsavel"),
+    editor: val("v_responsavel"),
+    status: val("v_status"),
+    link: val("v_link")
+  });
+
+  closeModal();
+  save();
+  render();
 }
 function commentVideo(id){
   const v=db.videos.find(x=>x.id===id);
