@@ -298,6 +298,14 @@ function docs(){
     </div>
   `;
 }
+function deleteBooking(id){
+  if(!confirm("Deseja realmente excluir este agendamento?")) return;
+
+  db.bookings = db.bookings.filter(b => b.id !== id);
+
+  save();
+  render();
+}
 
 function updateDoc(id,key,val){
   const d=db.docs.find(x=>x.id===id); d[key]=val; save();
