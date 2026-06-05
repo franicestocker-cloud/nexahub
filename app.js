@@ -247,30 +247,34 @@ function agenda(){
       <table class="table">
         <thead>
           <tr>
-            <th>Cliente</th>
-            <th>Data</th>
-            <th>Hora</th>
-            <th>Tipo</th>
-            <th>Local</th>
-            <th>Status</th>
-            <th>Ações</th>
+           <th>Cliente</th>
+<th>Responsável</th>
+<th>Setor</th>
+<th>Data</th>
+<th>Hora</th>
+<th>Tipo</th>
+<th>Local</th>
+<th>Status</th>
+<th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          ${bookings.map(b=>`
-            <tr>
-              <td>${b.client || ""}</td>
-              <td>${b.date || ""}</td>
-              <td>${b.time || ""}</td>
-              <td>${agendaTipoBadge(b.type)}</td>
-              <td>${b.place || ""}</td>
-              <td>${b.status ? statusBadge(b.status) : statusBadge("Confirmado")}</td>
-              <td>
-                <button class="btn light" onclick="editBooking(${b.id})">Editar</button>
-                <button class="btn danger" onclick="deleteBooking(${b.id})">Excluir</button>
-              </td>
-            </tr>
-          `).join("")}
+         ${bookings.map(b=>`
+<tr>
+  <td>${b.client || ""}</td>
+  <td>${b.responsavel || ""}</td>
+  <td>${b.setor || ""}</td>
+  <td>${b.date || ""}</td>
+  <td>${b.time || ""}</td>
+  <td>${agendaTipoBadge(b.type)}</td>
+  <td>${b.place || ""}</td>
+  <td>${b.status ? statusBadge(b.status) : statusBadge("Confirmado")}</td>
+  <td>
+    <button class="btn light" onclick="editBooking(${b.id})">Editar</button>
+    <button class="btn danger" onclick="deleteBooking(${b.id})">Excluir</button>
+  </td>
+</tr>
+`).join("")}
         </tbody>
       </table>
     </div>
