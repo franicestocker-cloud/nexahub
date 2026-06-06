@@ -1,0 +1,133 @@
+{
+  "theme": "Light & Dark Mode (User customizable primary color)",
+  "archetype": "Archetype 4: Swiss & High-Contrast (Warm variant)",
+  "design_principles": [
+    "Dense, functional control room aesthetic.",
+    "Left-aligned hierarchy with progressive disclosure.",
+    "Warm-toned grays/stones instead of sterile blue-grays to evoke approachability.",
+    "High contrast for legibility, minimizing decorative elements.",
+    "Flat, cardless or sharp-edged card design with max 8px radius."
+  ],
+  "colors": {
+    "primary": {
+      "DEFAULT": "#D94A38",
+      "hover": "#B93A2A",
+      "foreground": "#FFFFFF",
+      "note": "Default primary is a warm Rust/Terracotta, but the platform is white-label and this will be customizable."
+    },
+    "background": {
+      "light": "#FAFAF9",
+      "dark": "#1C1917"
+    },
+    "surface": {
+      "light": "#FFFFFF",
+      "dark": "#292524"
+    },
+    "border": {
+      "light": "#E7E5E4",
+      "dark": "#44403C"
+    },
+    "text": {
+      "light": {
+        "primary": "#1C1917",
+        "secondary": "#57534E",
+        "muted": "#A8A29E"
+      },
+      "dark": {
+        "primary": "#FAFAF9",
+        "secondary": "#A8A29E",
+        "muted": "#57534E"
+      }
+    },
+    "status": {
+      "success": "#16A34A",
+      "warning": "#D97706",
+      "error": "#DC2626",
+      "info": "#2563EB"
+    }
+  },
+  "typography": {
+    "headings": {
+      "family": "Cabinet Grotesk, sans-serif",
+      "weights": ["500", "700", "900"],
+      "tracking": "tracking-tight"
+    },
+    "body": {
+      "family": "Satoshi, sans-serif",
+      "weights": ["400", "500", "600"],
+      "tracking": "tracking-normal"
+    },
+    "mono": {
+      "family": "JetBrains Mono, monospace",
+      "weights": ["400", "500"]
+    },
+    "scale": {
+      "h1": "text-3xl sm:text-4xl",
+      "h2": "text-2xl sm:text-3xl",
+      "h3": "text-xl sm:text-2xl",
+      "h4": "text-lg sm:text-xl",
+      "body": "text-sm",
+      "small": "text-xs"
+    }
+  },
+  "layout": {
+    "spacing_scale": "Dense configuration: p-2, p-4, p-6. Avoid excessive padding in data views.",
+    "grid_system": "The Control Room Grid: grid-cols-1 md:grid-cols-3 lg:grid-cols-4 with gap-4 or gap-6.",
+    "alignment": "Strictly left-aligned for all paragraphs, forms, tables, and dense content.",
+    "surface_strategy": "Grid Borders (The 'Technical' Look): Expose the skeleton. Use pure border-collapse style layouts or 1px subtle borders (border-border). No soft shadows."
+  },
+  "components": {
+    "sidebar": "Fixed left, dark or light variant based on theme, dense link list with small icons.",
+    "cards": "Cardless approach or flat with 1px border. Max border-radius: 8px (rounded-md or rounded-sm). Hover state: slight darkering of border, no shadow lift.",
+    "buttons": "Sharp or slightly rounded (rounded-md). High contrast. Hover must lighten/darken clearly.",
+    "inputs": "Shadcn default but customized to have ring-0 on focus, instead use a strong 1px border of primary color.",
+    "kanban": "Horizontal scrolling, dense task cards, tags with low opacity backgrounds."
+  },
+  "motion": {
+    "hover": "Subtle color shifts, no bouncing or scaling for data elements.",
+    "transitions": "transition-colors duration-150 ease-in-out"
+  },
+  "icons": {
+    "library": "@phosphor-icons/react",
+    "style": "Duotone or Regular weight, small sizes (16px or 20px) to maintain density.",
+    "installation": "yarn add @phosphor-icons/react"
+  },
+  "media": {
+    "images": [
+      {
+        "category": "avatar_1",
+        "url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdHxlbnwwfHx8fDE3ODA3NTE5ODF8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Male executive avatar"
+      },
+      {
+        "category": "avatar_2",
+        "url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzh8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdHxlbnwwfHx8fDE3ODA3NTE5ODF8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Female manager avatar"
+      },
+      {
+        "category": "abstract_background",
+        "url": "https://images.pexels.com/photos/7130557/pexels-photo-7130557.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Warm abstract background for login/signup screens"
+      },
+      {
+        "category": "company_logo",
+        "url": "https://images.unsplash.com/photo-1769985090528-5a4da245e9a8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwyfHxtaW5pbWFsaXN0JTIwY29tcGFueSUyMGxvZ298ZW58MHx8fHwxNzgwNzgxMTMyfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Placeholder client logo"
+      }
+    ]
+  },
+  "accessibility_and_testing": {
+    "contrast": "Ensure all text meets at least 4.5:1 ratio.",
+    "testing": "All interactive and key informational elements MUST include a data-testid attribute (e.g., data-testid='sidebar-nav-crm')."
+  },
+  "instructions_to_main_agent": [
+    "Ensure all components are implemented as .js files, NOT .tsx.",
+    "Do NOT use HTML-based components for advanced user interactions; use Shadcn equivalents.",
+    "For the UI, adopt a 'Control Room' grid layout for the dashboard. Elements should fit tightly together.",
+    "For typography, do not use Inter. Install and configure 'Cabinet Grotesk' and 'Satoshi'.",
+    "Replace Shadcn's default borders/radii with max 8px radii (rounded-md) to match the technical, dense feel.",
+    "Ensure the application supports standard tailwind dark mode classes (dark:bg-...).",
+    "Build the dashboard focusing on progressive disclosure: show the most important metric first, reveal secondary detail through interactions.",
+    "Install `@phosphor-icons/react` for icons to ensure a technical and dense appearance."
+  ]
+}
